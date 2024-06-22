@@ -1,0 +1,99 @@
+#=================================================
+# https://github.com/P3TERX/Actions-OpenWrt
+# Description: Build OpenWrt using GitHub Actions
+# Lisence: MIT
+# Author: P3TERX
+# Blog: https://p3terx.com
+#=================================================
+
+name: Build OpenWrt
+
+on: 
+  repository_dispatch:
+
+env:
+  REPO_TOKEN: ${{ secrets.TOKEN_KIDDIN9 }}
+  PPPOE_USERNAME: ${{ secrets.PPPOE_USERNAME }}
+  PPPOE_PASSWD: ${{ secrets.PPPOE_PASSWD }}
+  SCKEY: ${{ secrets.SCKEY }}
+  TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  DOCKER_ID: ${{ secrets.DOCKER_ID }}
+  DOCKER_PASSWD: ${{ secrets.DOCKER_PASSWD }}
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: Ubuntu-22.04
+    
+    name: Build ${{matrix.target}}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ["${{ github.event.client_payload.target }}"]
+        
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+      with:
+          fetch-depth: 0
+
+    # - name: Set up secret file
+      # run: |
+        # echo ${{ secrets.TELEGRAM_CHAT_ID }} | sed 's/./& /g'
+        # echo ${{ secrets.TELEGRAM_TOKEN }} | sed 's/./& /g'
+
+    - name: Load Settings.ini
+      run: |
+        echo ${{matrix.target}}
+        source "${GITHUB_WORKSPACE}/devices/common/settings.ini"
+        if [ -f "devices/${{matrix.target}}/settings.ini" ]; then
+          source "${GITHUB_WORKSPACE}/devices/${{matrix.target}}/settings.ini"
+        fi
+        echo "REPO_URL=${REPO_URL}" >> $GITHUB_ENV
+        echo "REPO_BRANCH=${REPO_BRANCH}" >> $GITHUB_ENV
+        echo "CONFIG_FILE=${CONFIG_FILE}" >> $GITHUB_ENV
+        echo "DIY_SH=${DIY_SH}" >> $GITHUB_ENV
+        echo "FREE_UP_DISK=${FREE_UP_DISK}" >> $GITHUB_ENV
+        echo "UPLOAD_BIN_DIR_FOR_ARTIFACT=${UPLOAD_BIN_DIR_FOR_ARTIFACT}" >> $GITHUB_ENV
+        echo "UPLOAD_FIRMWARE_FOR_ARTIFACT=${UPLOAD_FIRMWARE_FOR_ARTIFACT}" >> $GITHUB_ENV
+        echo "UPLOAD_FIRMWARE_FOR_RELEASE=${UPLOAD_FIRMWARE_FOR_RELEASE}" >> $GITHUB_ENV
+        echo "UPLOAD_FIRMWARE_TO_COWTRANSFER=${UPLOAD_FIRMWARE_TO_COWTRANSFER}" >> $GITHUB_ENV
+        echo "UPLOAD_FIRMWARE_TO_WETRANSFER=${UPLOAD_FIRMWARE_TO_WETRANSFER}" >> $GITHUB_ENV
+        sed -i "1a REPO_TOKEN=${{ secrets.TOKEN_KIDDIN9 }}" ${GITHUB_WORKSPACE}/devices/common/diy.sh
+        sed -i "1a TARGET=${{matrix.target}}" ${GITHUB_WORKSPACE}/devices/common/diy.sh
+        if [ ${{matrix.target}} == "x86_64" ]; then
+            echo "ARCH=linux/amd64" >> $GITHUB_ENV
+            echo "MTARGET=x86_64" >> $GITHUB_ENV
+        elif [ ${{matrix.target}} == "x86_generic" ]; then
+            echo "ARCH=linux/amd32" >> $GITHUB_ENV
+            echo "MTARGET=x86_generic" >> $GITHUB_ENV
+        elif [[ ${{matrix.target}} =~ (armsr_armv8|qualcommax_ipq807x|mediatek_mt7622|mediatek_mt7981|mediatek_filogic|bcm27xx_bcm2710|qualcommax_ipq60xx|bcm4908_generic|sunxi_cortexa53) ]]; then
+            echo "MTARGET=aarch64_cortex-a53" >> $GITHUB_ENV
+        elif [[ ${{matrix.target}} =~ (ramips_mt7621|ramips_mt7620|ramips_mt76x8) ]]; then
+            echo "MTARGET=mipsel_24kc" >> $GITHUB_ENV
+        elif [[ ${{matrix.target}} == "ath79_nand" ]]; then
+            echo "MTARGET=mips_24kc" >> $GITHUB_ENV
+        elif [[ ${{matrix.target}} == "ipq50xx_arm" ]]; then
+            echo "MTARGET=arm_cortex-a7" >> $GITHUB_ENV
+        elif [[ ${{matrix.target}} =~ (ipq40xx_generic|bcm27xx_bcm2709|sunxi_cortexa7) ]]; then
+            echo "MTARGET=arm_cortex-a7_neon-vfpv4" >> $GITHUB_ENV
+        elif [[ ${{matrix.target}} == "amlogic_meson8b" ]]; then
+            echo "MTARGET=arm_cortex-a5_vfpv4" >> $GITHUB_ENV
+        elif [[ ${{matrix.target}} == "bcm53xx" ]]; then
+            echo "MTARGET=arm_cortex-a9" >> $GITHUB_ENV
+        elif [[ ${{matrix.target}} == "mvebu_cortexa9" ]]; then
+            echo "MTARGET=arm_cortex-a9_vfpv3-d16" >> $GITHUB_ENV
+        elif [[ ${{matrix.target}} == "ipq806x_generic" ]]; then
+            echo "MTARGET=arm_cortex-a15_neon-vfpv4" >> $GITHUB_ENV
+        elif [[ ${{matrix.target}} == "bcm27xx_bcm2708" ]]; then
+            echo "MTARGET=arm_arm1176jzf-s_vfp" >> $GITHUB_ENV
+        else
+          echo "ARCH=linux/arm64" >> $GITHUB_ENV
+          if [[ ${{matrix.target}} == "bcm27xx_bcm2711" ]]; then
+            echo "MTARGET=aarch64_cortex-a72" >> $GITHUB_ENV
+          elif [[ ${{matrix.target}} == rockchip* ]]; then
+            echo "MTARGET=aarch64_generic" >> $GITHUB_ENV
+          fi
+        fi
