@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: ["${{ github.event.client_payload.target }}"]
+        target: ["qualcommax_ipq60xx"]
         
     steps:
     - name: Checkout
