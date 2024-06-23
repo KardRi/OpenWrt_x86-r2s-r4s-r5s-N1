@@ -46,17 +46,17 @@ index 4474977494e4d..4b88911c0e102 100644
  	glinet_gl-ax1800 \
  	glinet_gl-axt1800 \
 +	jdc_ax1800-pro \
+ 	jdcloud_ax1800pro \
+ 	jdcloud_ax6600 \
  	linksys_mr7350 \
- 	linksys_mx4200 \
- 	netgear_rax120v2 \
-@@ -141,6 +142,7 @@ $(eval $(call generate-ipq-wifi-package,edgecore_eap102,Edgecore EAP102))
+@@ -145,6 +146,7 @@ $(eval $(call generate-ipq-wifi-package,edgecore_eap102,Edgecore EAP102))
  $(eval $(call generate-ipq-wifi-package,edimax_cax1800,Edimax CAX1800))
  $(eval $(call generate-ipq-wifi-package,glinet_gl-ax1800,GL.iNet GL-AX1800))
  $(eval $(call generate-ipq-wifi-package,glinet_gl-axt1800,GL.iNet GL-AXT1800))
 +$(eval $(call generate-ipq-wifi-package,jdc_ax1800-pro,JD Cloud AX1800 Pro))
+ $(eval $(call generate-ipq-wifi-package,jdcloud_ax1800pro,JDCloud AX1800 Pro))
+ $(eval $(call generate-ipq-wifi-package,jdcloud_ax6600,JDCloud AX6600))
  $(eval $(call generate-ipq-wifi-package,linksys_mr7350,Linksys MR7350))
- $(eval $(call generate-ipq-wifi-package,linksys_mx4200,Linksys MX4200))
- $(eval $(call generate-ipq-wifi-package,netgear_rax120v2,Netgear RAX120v2))
 diff --git a/target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018-jdc-ax1800-pro.dts b/target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6018-jdc-ax1800-pro.dts
 new file mode 100644
 index 0000000000000..85032240a7a83
@@ -545,12 +545,12 @@ diff --git a/target/linux/qualcommax/ipq60xx/base-files/etc/hotplug.d/firmware/1
 index f148438b3335d..bc30e8cc423db 100644
 --- a/target/linux/qualcommax/ipq60xx/base-files/etc/hotplug.d/firmware/11-ath11k-caldata
 +++ b/target/linux/qualcommax/ipq60xx/base-files/etc/hotplug.d/firmware/11-ath11k-caldata
-@@ -15,6 +15,7 @@ case "$FIRMWARE" in
- 	zn,m2)
- 		caldata_extract "0:art" 0x1000 0x10000
+@@ -18,6 +18,7 @@ case "$FIRMWARE" in
  		;;
+ 	jdcloud,re-cs-02|\
+ 	jdcloud,re-ss-01|\
 +	jdc,ax1800-pro|\
- 	redmi,ax5-jdcloud)
+	redmi,ax5-jdcloud)
  		caldata_extract_mmc "0:ART" 0x1000 0x10000
  		;;
 diff --git a/target/linux/qualcommax/ipq60xx/base-files/lib/upgrade/mmc.sh b/target/linux/qualcommax/ipq60xx/base-files/lib/upgrade/mmc.sh
