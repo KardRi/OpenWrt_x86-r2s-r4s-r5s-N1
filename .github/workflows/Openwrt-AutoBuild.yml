@@ -9,7 +9,7 @@
 name: Build OpenWrt
 
 on: 
-  repository_dispatch:
+  workflow_dispatch:
 
 env:
   REPO_TOKEN: ${{ secrets.TOKEN_KIDDIN9 }}
@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: ["${{ github.event.client_payload.target }}"]
+        target: ["qualcommax_ipq60xx"]
         
     steps:
     - name: Checkout
